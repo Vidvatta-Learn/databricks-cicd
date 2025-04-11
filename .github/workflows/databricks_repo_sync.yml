@@ -48,7 +48,7 @@ jobs:
       env:
         # --- IMPORTANT: CHANGE THIS PATH ---
         # Set this to the exact path where your repo is located in Databricks Repos
-        DATABRICKS_REPO_PATH: /Repos/Shared/your-project-repo # Example path in /Repos/Shared/
+        DATABRICKS_REPO_PATH: /Workspace/Users/rushikesh.meharwade@gmail.com/databricks-cicd # Example path in /Repos/Shared/
         # Or if it's under your user folder: /Repos/your.email@domain.com/your-project-repo
       run: |
         echo "Finding Repo ID for path ${{ env.DATABRICKS_REPO_PATH }}"
