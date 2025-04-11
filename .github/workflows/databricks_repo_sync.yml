@@ -1,0 +1,74 @@
+# .github/workflows/databricks_repo_sync.yml
+name: Sync Code to Databricks Repo
+
+# Trigger this workflow on pushes to the main branch
+on:
+  push:
+    branches:
+      - development  # Adjust if your production branch is named differently (e.g., master, prod)
+
+jobs:
+  sync-databricks-repo:
+    runs-on: ubuntu-latest # Use the latest available Ubuntu runner
+
+    steps:
+    # Step 1: Check out the repository's code so the workflow can access it
+    - name: Checkout code
+      uses: actions/checkout@v4 # Use the latest version of the checkout action
+
+    # Step 2: Set up Python environment, needed for Databricks CLI
+    - name: Set up Python
+      uses: actions/setup-python@v5 # Use the latest version
+      with:
+        python-version: '3.10' # Or your preferred Python version compatible with Databricks CLI
+
+    # Step 3: Install the Databricks CLI
+    - name: Install Databricks CLI
+      run: pip install databricks-cli
+
+    # Step 4: Configure Databricks CLI Authentication using Secrets
+    # Assumes you have DATABRICKS_HOST, DATABRICKS_CLIENT_ID, and DATABRICKS_CLIENT_SECRET
+    # stored as GitHub repository secrets. Uses Service Principal auth.
+    - name: Configure Databricks CLI for Service Principal
+      env:
+        DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+        DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+        DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+      run: |
+        echo "Configuring Databricks CLI..."
+        # Environment variables are automatically picked up by databricks-cli
+        # Verify authentication by listing clusters (optional, redirects output)
+        databricks clusters list --output JSON > /dev/null
+        echo "Databricks CLI configured."
+
+    # Step 5: Find the Databricks Repo ID based on its workspace path
+    # The path must exactly match the path shown in Databricks Repos UI
+    - name: Find Databricks Repo ID
+      id: find_repo # Give this step an ID to reference its output later
+      env:
+        # --- IMPORTANT: CHANGE THIS PATH ---
+        # Set this to the exact path where your repo is located in Databricks Repos
+        DATABRICKS_REPO_PATH: /Repos/Shared/your-project-repo # Example path in /Repos/Shared/
+        # Or if it's under your user folder: /Repos/your.email@domain.com/your-project-repo
+      run: |
+        echo "Finding Repo ID for path ${{ env.DATABRICKS_REPO_PATH }}"
+        # Use databricks repos list and jq (pre-installed on runner) to find the ID
+        REPO_ID=$(databricks repos list --path-prefix ${{ env.DATABRICKS_REPO_PATH }} --output JSON | jq --arg path "${{ env.DATABRICKS_REPO_PATH }}" -r '.repos[] | select(.path == $path) | .id')
+
+        if [ -z "$REPO_ID" ]; then
+          echo "Error: Databricks Repo not found at path ${{ env.DATABRICKS_REPO_PATH }}"
+          echo "Please ensure the path is correct and the Service Principal has permissions."
+          exit 1
+        fi
+        echo "Found Repo ID: $REPO_ID"
+        # Set the repo_id as an output variable for the next step
+        echo "repo_id=$REPO_ID" >> $GITHUB_OUTPUT
+
+    # Step 6: Update the Databricks Repo to the latest commit from the specified branch
+    - name: Update Databricks Repo
+      run: |
+        # Get the branch name that triggered the workflow (e.g., 'main')
+        BRANCH_NAME=${{ github.ref_name }}
+        echo "Updating Databricks Repo ID ${{ steps.find_repo.outputs.repo_id }} to branch '$BRANCH_NAME'"
+        databricks repos update --repo-id ${{ steps.find_repo.outputs.repo_id }} --branch $BRANCH_NAME
+        echo "Databricks Repo updated successfully."
