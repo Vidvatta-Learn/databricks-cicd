@@ -27,8 +27,8 @@ jobs:
     - name: Configure Databricks CLI for Service Principal
       env:
         DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-        DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
-        DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+        # DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+        # DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
         DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }} 
       run: |
         echo "Configuring Databricks CLI..."
