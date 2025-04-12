@@ -10,7 +10,11 @@ on:
 jobs:
   sync-databricks-repo:
     runs-on: ubuntu-latest # Use the latest available Ubuntu runner
-
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      # DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+      # DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
     steps:
     # Step 1: Check out the repository's code so the workflow can access it
     - name: Checkout code
@@ -25,11 +29,6 @@ jobs:
     # Assumes you have DATABRICKS_HOST, DATABRICKS_CLIENT_ID, and DATABRICKS_CLIENT_SECRET
     # stored as GitHub repository secrets. Uses Service Principal auth.
     - name: Configure Databricks CLI for Service Principal
-      env:
-        DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-        # DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
-        # DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
-        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       run: |
         echo "Configuring Databricks CLI..."
         # Environment variables are automatically picked up by databricks-cli
