@@ -65,5 +65,5 @@ jobs:
         # Get the branch name that triggered the workflow (e.g., 'main')
         BRANCH_NAME=${{ github.ref_name }}
         echo "Updating Databricks Repo ID ${{ steps.find_repo.outputs.repo_id }} to branch '$BRANCH_NAME'"
-        databricks repos update --repo-id ${{ steps.find_repo.outputs.repo_id }} --branch $BRANCH_NAME
+        databricks repos update ${{ steps.find_repo.outputs.repo_id }} --branch $BRANCH_NAME
         echo "Databricks Repo updated successfully."
