@@ -48,7 +48,7 @@ jobs:
       run: |
         echo "Finding Repo ID for path ${{ env.DATABRICKS_REPO_PATH }}"
         # Use databricks repos list and jq (pre-installed on runner) to find the ID
-        REPO_ID=$(databricks repos list --path-prefix ${{ env.DATABRICKS_REPO_PATH }} --output json | jq --arg path "${{ env.DATABRICKS_REPO_PATH }}" -r '.repos[] | select(.path == $path) | .id')
+        REPO_ID=$(databricks repos list --path-prefix ${{ env.DATABRICKS_REPO_PATH }}  2>/dev/null | jq --arg path "${{ env.DATABRICKS_REPO_PATH }}" -r '.[] | select(.path == $path) | .id')
 
         if [ -z "$REPO_ID" ]; then
           echo "Error: Databricks Repo not found at path ${{ env.DATABRICKS_REPO_PATH }}"
