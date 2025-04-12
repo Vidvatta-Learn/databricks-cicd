@@ -43,12 +43,12 @@ jobs:
       env:
         # --- IMPORTANT: CHANGE THIS PATH ---
         # Set this to the exact path where your repo is located in Databricks Repos
-        DATABRICKS_REPO_PATH: /Workspace/Users/rushikesh.meharwade@gmail.com/databricks-cicd # Example path in /Repos/Shared/
+        DATABRICKS_REPO_PATH: /Users/rushikesh.meharwade@gmail.com/databricks-cicd # Example path in /Repos/Shared/
         # Or if it's under your user folder: /Repos/your.email@domain.com/your-project-repo
       run: |
         echo "Finding Repo ID for path ${{ env.DATABRICKS_REPO_PATH }}"
         # Use databricks repos list and jq (pre-installed on runner) to find the ID
-        REPO_ID=$(databricks repos list --path-prefix /Workspace/Users/rushikesh.meharwade@gmail.com/databricks-cicd --output json | jq --arg path "/Workspace/Users/rushikesh.meharwade@gmail.com/databricks-cicd" -r '.repos[] | select(.path == $path) | .id')
+        REPO_ID=$(databricks repos list --path-prefix ${{ env.DATABRICKS_REPO_PATH }} --output json | jq --arg path "${{ env.DATABRICKS_REPO_PATH }}" -r '.repos[] | select(.path == $path) | .id')
 
         if [ -z "$REPO_ID" ]; then
           echo "Error: Databricks Repo not found at path ${{ env.DATABRICKS_REPO_PATH }}"
