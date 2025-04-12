@@ -23,8 +23,8 @@ jobs:
         python-version: '3.10' # Or your preferred Python version compatible with Databricks CLI
 
     # Step 3: Install the Databricks CLI
-    - name: Install Databricks CLI
-      run: pip install databricks-cli
+    - name: Install Databricks sdk
+      run: pip install databricks-sdk
 
     # Step 4: Configure Databricks CLI Authentication using Secrets
     # Assumes you have DATABRICKS_HOST, DATABRICKS_CLIENT_ID, and DATABRICKS_CLIENT_SECRET
