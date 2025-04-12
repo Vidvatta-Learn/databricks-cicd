@@ -16,15 +16,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4 # Use the latest version of the checkout action
 
-    # Step 2: Set up Python environment, needed for Databricks CLI
-    - name: Set up Python
-      uses: actions/setup-python@v5 # Use the latest version
-      with:
-        python-version: '3.10' # Or your preferred Python version compatible with Databricks CLI
-
-    # Step 3: Install the Databricks CLI
-    - name: Install Databricks sdk
-      run: pip install databricks-sdk
+    # Step 2: Set up the Databricks CLI using the official action
+    # This replaces the need for setup-python and pip install steps
+    - name: Set up Databricks CLI
+      uses: databricks/setup-cli@main
 
     # Step 4: Configure Databricks CLI Authentication using Secrets
     # Assumes you have DATABRICKS_HOST, DATABRICKS_CLIENT_ID, and DATABRICKS_CLIENT_SECRET
