@@ -36,10 +36,24 @@ mlflow.autolog(
 # Option 1: Re-run previous steps if needed (not ideal for jobs)
 # Option 2: Load base data and use Feature Store client to join features
 
+dbutils.widgets.text("upstream_metrics_json", "{{tasks.DataCreation.values.notebook_output}}")
+delta_lake_path = dbutils.widgets.get("upstream_metrics_json")
+
+dbutils.widgets.text("upstream_metrics_json", "{{tasks.FeatureEngineering.values.notebook_output}}")
+fs_table_name = dbutils.widgets.get("upstream_metrics_json")
+
+if not delta_lake_path:
+    delta_lake_path = '/mnt/adventureworks/prepared_data2'
+    print(f"Delta Lake Path not found in history")
+
+if not fs_table_name:
+    fs_table_name = "databricks_us.adventureworks_db.sales_order_features2"
+    print(f"Feature Store Table not found in history")
+
 # Load base data again (or from Delta Lake) - need primary key and target
 # This assumes 01_Data_Ingestion was run or data is accessible
 try:
-    base_df = spark.read.format("delta").load("/mnt/adventureworks/prepared_data2") # Example path
+    base_df = spark.read.format("delta").load(delta_lake_path) # Example path
     # OR reload from DB if not saved
     # base_df = spark.read.jdbc(...) # As in notebook 01, select primary_key and target
     base_df = base_df.select("primary_key", "TotalDue") # Need target variable and key
@@ -49,7 +63,10 @@ except Exception as e:
 
 # COMMAND ----------
 
-fs_table_name = "databricks_us.adventureworks_db.sales_order_features2" # Or get from previous run: dbutils.notebook.entry_point.getDbutils().notebook().getContext().currentRunId().get() ...
+dbutils.notebook.entry_point.getDbutils().notebook().getContext().currentRunId()
+
+# COMMAND ----------
+
 
 fs = feature_store.FeatureStoreClient()
 
