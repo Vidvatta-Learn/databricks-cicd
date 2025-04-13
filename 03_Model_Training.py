@@ -36,11 +36,9 @@ mlflow.autolog(
 # Option 1: Re-run previous steps if needed (not ideal for jobs)
 # Option 2: Load base data and use Feature Store client to join features
 
-dbutils.widgets.text("upstream_metrics_json", "{{tasks.DataCreation.values.notebook_output}}")
-delta_lake_path = dbutils.widgets.get("upstream_metrics_json")
+delta_lake_path = dbutils.jobs.taskValues.get(taskKey = "DataCreation", key = "delta_table_path")
 
-dbutils.widgets.text("upstream_metrics_json", "{{tasks.FeatureEngineering.values.notebook_output}}")
-fs_table_name = dbutils.widgets.get("upstream_metrics_json")
+fs_table_name = dbutils.jobs.taskValues.get(taskKey = "FeatureEngineering", key = "fs_table_name")
 
 if not delta_lake_path:
     delta_lake_path = '/mnt/adventureworks/prepared_data2'
