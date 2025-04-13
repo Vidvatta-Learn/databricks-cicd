@@ -1,7 +1,7 @@
 # .github/workflows/databricks_repo_sync.yml
 name: Sync Code to Databricks Repo
 
-# Trigger this workflow on pushes to the main branch
+# Trigger this workflow on pushes to the main branchh
 on:
   push:
     branches:
